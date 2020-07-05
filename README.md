@@ -226,3 +226,44 @@ Una vez definidos los fragmentos, solo los insertamos. Los fragmentos se inserta
     </header>
     ...
 ```
+    
+### Data Binding en Spring MVC
+Data Binding es el mecanismo mediante el cual Spring MVC extrae dinámicamente los datos de entrada del usuario y los asigna a objetos de Modelo de nuestra aplicación. Cuando utilizamos Data Binding en Spring MVC, la conversión de los tipos de datos se hace automáticamente. Spring MVC convierte los parámetros de la aplicación HTTP de tipo String, al tipo de dato según nuestra clase de modelo (int, Date, double, etc). La validación de los datos de entrada también se hace automáticamente.
+
+```html
+<form th:action="@{/guardar}" method="post">
+  
+  <input type="text" name="nombre" />
+  
+  <select name="estado" >
+    <option value="creado"> Creado </option>
+    <option value="aprobado"> Aprobado </option>
+  </select>
+  
+  <textarea name="detalle"></textarea>
+  
+  <button type="submit"> Guardar </button>
+</form>
+```
+
+Data Binding asignará cada parámetro de la petición a cada propiedad del Modelo, pero solo si el nombre de un parámetro de la petición (input del formulario) coincide con el de una propiedad de nuestro objeto de modelo.
+
+```java
+public class Cliente {
+  private int id;
+  private String nombre;
+  private String estado;
+  private String detalle;
+  
+  //getters y setters
+}
+```
+
+Controller
+```java
+@PostMapping("guardar")
+public String guardar(Cliente cliente) {
+  serviceClientes.guardar(cliente);
+  return "listado";
+}
+```
