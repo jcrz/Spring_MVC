@@ -184,3 +184,45 @@ public String guardar( @RequestParam("titulo") String tituloTmp ) {
   return "detalle";
 }
 ```
+### Inyección de Dependencias
+Procedimiento para inyectar (@Autowired) una clase de servicio en un controlador:
+1. Anotar la clase de servicio (la implementación) con la anotación **@Service** de Spring Framework.
+```java
+@Service
+public class clientesServiceImpl implements IClientesService {
+  //Métodos de lógica de negocio
+  ...
+}
+```
+Por defecto, las clases de servicio tienen alcance Singleton (una sola instancia de la clase para toda la aplicación).
+2. Utilizar los métodos de la clase de servicio en el controlador.
+```java
+@Controller
+public class HomeController {
+
+  @Autowired
+  private IClientesService serviceClientes;
+  
+  ...
+}
+```
+### Thymeleaf Fragments - Layouts (Aplicando plantillas HTML)
+Normalmente las aplicaciones web comparten componentes (fragmentos de código HTML) que se repiten en cada vista, como cabecera, menu, pie de página, etc.
+
+Para este tipo de diseño de plantillas, Thymeleaf incluye las siguientes expresiones:
+**templates/fragments/menu.html** Estamos definiendo un Fragmento de código HTML con el nombre de "menu-principal"
+```html
+<nav th:fragment="menu-principal">
+  <li>
+    <a>Home</a>
+  </li>
+</nav>
+```
+Una vez definidos los fragmentos, solo los insertamos. Los fragmentos se insertarán dentro del elemento HTML donde se declaren (th:insert) en este caso: <header>
+```html
+...
+  <body>
+    <header th:insert="fragments/menu.html :: menu-principal" >
+    </header>
+    ...
+```
