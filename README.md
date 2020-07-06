@@ -290,7 +290,92 @@ public void initBinder(WebDataBinder webDataBinder) {
 Cuando Spring MVC realiza Data Binding pueden surgir errores. Por ejemplo:
 
 - Errores de formato. Por ejemplo el usuario ingresa la fecha 32-02-2020.
-- Errores de conversion. Por ejemplo en el atributo salario (private Double salario) el usuario ingresa un valor alfanumerico.
+- Errores de conversión. Por ejemplo en el atributo salario (private Double salario) el usuario ingresa un valor alfanumérico.
 - Omitir campos requeridos.
 
-Para revisar posibles errores despues del Data Binding debemos agregar un parametro de tipo **BindingResult** INMEDIATAMENTE despues de la clase de modelo. Ejemplo:
+Para revisar posibles errores despúes del Data Binding debemos agregar un parámetro de tipo **BindingResult** INMEDIATAMENTE despúes de la clase de modelo. Ejemplo:
+```java
+@PostMapping("/guardar")
+public String guardar(Cliente cliente, BindingResult result) {
+  if (result.hasErrors()) {
+    // si hay errores vuelve al formulario
+    return "formulario";
+  }
+  serviceClientes.guardar(cliente)
+  return "listado";
+}
+```
+
+Despúes de agregar el parámetro BindigResult, podríamos verificar si hay errores y en case de haber, lo correcto sería mostrarselos al usuario en la vista para su corrección.
+**Desplegar errores por consola**
+```java
+for (ObjectError error: result.getAllErrors()) {
+  System.out.println("Ocurrio un error: " + error.getDefaultMessage());
+}
+```
+
+### BindingResult - Desplegar errores en la vista
+Para vincular los errores en la vista, también debemos enviar al formulario un objeto de nuestra clase de modelo (se declara como parametro):
+```java
+@GetMapping("/crear")
+public String crear(Cliente cliente) {
+  return "formulario";
+}
+```
+Vincular nuestro HTML FORM con el objeto de modelo (th:object)
+```html
+<form th:action="@{/guardar}" method="post" th:object="${cliente}" >
+```
+Utilizar la expresión **${#fields.hasErrors('*')}** es un* condicional para preguntar si existieron errores al realizarse el Data Binding.
+En caso de Existir errores, recorrer (th:each) la colección de errores existente: **${#fields.errors('*')}** .* 
+
+```html
+<div th:if="${#fields.hasErrors('*')}"  class='alert alert-danger' role='alert'>
+  Por favor corrija los siguientes errores:
+  <ul>
+    <li th:each="err : ${#fields.errors('*')}" th:text="${err}" ></li>
+  </ul>
+</div>
+```
+
+### Redirect en Spring MVC
+```java
+@PostMapping("/guardar")
+public String guardar(Cliente cliente, BindingResult result) {
+  ...
+  // Petición HTTP tipo GET -> localhost:8080/clientes/listado
+  return "redirect:/clientes/listado";
+}
+```
+
+### Flash Atributtes
+Lo utilizamos para enviar atributos implicitamente dentro de un Redirect. 
+Los **atributos flash** proporcionan una forma de almacenar atributos para poder ser usados en otra petición diferente. Comúnmente son usados cuando hacemos una redirección utilizando el patrón Post/Redirect/Get.
+Los atributos flash son almacenados temporalmente antes de hacer el redirect (tipicamente en la sesión) para tenerlos disponibles después del redirect. Después del redirect son eliminados de la sesión automáticamente.
+
+Ejemplo **controlador**
+```java
+@PostMapping("/guardar")
+public String guardar(Cliente cliente, BindingResult result, RedirectAttributes attributes) {
+  ...
+  attributes.addFlashAttribute("msg", "Registro guadado");
+  return "redirect:/clientes/listado";
+}
+```
+Ejemplo **vista**
+```html
+<div th:if="${msg != null}" class='alert alert-success' th:text="${msg}" role='alert'></div>
+```
+### Vincular inputs apropiedades de clases de modulo
+Lo utilizaremos para que al momento llenar un formulario y cometer un error se vuelva a cargar el formulario pero con los demás campos llenos.
+```html
+<input type="text" ... th:field="*{nombre}">
+```
+
+### Generar input de tipo select de forma dinámica
+Ejemplo en la vista
+```html
+<select class="form-control" name="" >
+  <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nombre}" ></option>
+</select>
+```
