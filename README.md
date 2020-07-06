@@ -267,3 +267,30 @@ public String guardar(Cliente cliente) {
   return "listado";
 }
 ```
+### Anotación @InitBinder
+**Error
+Failed to convert from type [java.lang.String] to type [java.util.Date] for value '09-04-2019' ; nested exception is java.lang.IllegalArgumentException**
+
+El error anterior significa que Spring no puede convertir el valor del parámetro de la petición "09-04-2019" a un tipo Date. Y la causa es que por defecto Spring espera la fecha en el formato según este configurada en el sistema operativo donde este la aplicación.
+
+La anotación **@InitBinder** permite crear métodos para configurar el Data Binding directamente en el ordenador.
+Los métodos marcados con la anotación @InitBinder **no regresa ningún valor**, normalmente son declarados como void. Comúnmente reciben un parámetro de tipo WebDataBinder.
+El siguiente ejemplo muestra como utilizar @InitBinder para configurar CustomDateEditor para todas las propiedades de tipo java.util.Date
+
+```java
+@InitBinder
+public void initBinder(WebDataBinder webDataBinder) {
+  SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+  webDataBinder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+}
+```
+(Utilizar dentro del controlador).
+
+### Control de errores en Data Binding
+Cuando Spring MVC realiza Data Binding pueden surgir errores. Por ejemplo:
+
+- Errores de formato. Por ejemplo el usuario ingresa la fecha 32-02-2020.
+- Errores de conversion. Por ejemplo en el atributo salario (private Double salario) el usuario ingresa un valor alfanumerico.
+- Omitir campos requeridos.
+
+Para revisar posibles errores despues del Data Binding debemos agregar un parametro de tipo **BindingResult** INMEDIATAMENTE despues de la clase de modelo. Ejemplo:
