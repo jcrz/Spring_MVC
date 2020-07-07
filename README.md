@@ -379,3 +379,32 @@ Ejemplo en la vista
   <option th:each="categoria : ${categorias}" th:value="${categoria.id}" th:text="${categoria.nombre}" ></option>
 </select>
 ```
+### Configuración de Spring Boot para subir archivos
+Agregar las siguientes propiedades en el archivo **application.properties**
+
+```
+# CONFIGURACIÓN MULTIPART (SUBIDA DE ARCHIVOS)
+# ¿Habilitamos subida de archivos?
+spring.servlet.multipart.enabled=true
+# Directorio intermedio para subir archivos (Linux/MAC)
+# spring.servlet.multipart.location=/tmp
+# Directorio temporal para subir archivos (Windows)
+spring.servlet.multipart.location=c:/tmp
+# Maximo tamaño de archivos que se pueden subir
+spring.servlet.multipart.max-file-size=2MB
+```
+Crear un directorio para guardar los archivos que se subirán. Por ejemplo:
+
+- Windows
+  - C:\clientes\img-clientes
+- Linux/MAC
+  - El directorio DEBE TENER PERMISOS DE ESCRITURA/LECTURA para el usuario que ejecuta la aplicación de Spring Boot.
+  
+```
+$ sudo mkdir -p /clientes/img-clientes
+$ sudo chown -R juan:juan /clientes/img-clientes
+$ ls -l /clientes
+drwxr-xr-x 2 juan juan 4096 feb 16 09:12 img-clientes
+```
+
+#### Clase Helper para guardar el archivo a disco duro
