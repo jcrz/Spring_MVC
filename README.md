@@ -408,3 +408,28 @@ drwxr-xr-x 2 juan juan 4096 feb 16 09:12 img-clientes
 ```
 
 #### Clase Helper para guardar el archivo a disco duro
+**Controlador**
+```java
+@PostMapping(value="/save")
+public String guardar(... @RequestParam("archivoImagen") MultipartFile multiPart ...) {
+  ...
+  if (!multiPart.isEmpty()) {
+    //String ruta = "/clientes/img-clientes/"; //Linux/MAC
+    String ruta = "c:/clientes/img-clientes/"; //Windows
+    String nombreImagen = Utileria.guardarArchivo(multiPart, ruta);
+    if (nombreImagen != null) { //La imagen si se subio
+      // Procesamos la variable nombreImagen
+      vacante.setImagen(nombreImagen);
+    }
+  }
+  ...
+}
+```
+**Formulario HTML**
+```html
+<form action="#" enctype="multipart/form-data" >
+  <input type="file" name="archivoImagen" />
+  <input type="submit"/>
+</form>
+```
+*Nota: En este caso el valor del atributo name del input de tipo file (archivoImagen) no es el nombre de la propiedad de la clase de modelo, porque no se puede convertir un tipo File a String.*
