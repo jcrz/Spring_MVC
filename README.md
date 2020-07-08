@@ -407,7 +407,7 @@ $ ls -l /clientes
 drwxr-xr-x 2 juan juan 4096 feb 16 09:12 img-clientes
 ```
 
-#### Clase Helper para guardar el archivo a disco duro
+### Clase Helper para guardar el archivo a disco duro
 **Controlador**
 ```java
 @PostMapping(value="/save")
@@ -419,7 +419,7 @@ public String guardar(... @RequestParam("archivoImagen") MultipartFile multiPart
     String nombreImagen = Utileria.guardarArchivo(multiPart, ruta);
     if (nombreImagen != null) { //La imagen si se subio
       // Procesamos la variable nombreImagen
-      vacante.setImagen(nombreImagen);
+      cliente.setImagen(nombreImagen);
     }
   }
   ...
@@ -433,3 +433,24 @@ public String guardar(... @RequestParam("archivoImagen") MultipartFile multiPart
 </form>
 ```
 *Nota: En este caso el valor del atributo name del input de tipo file (archivoImagen) no es el nombre de la propiedad de la clase de modelo, porque no se puede convertir un tipo File a String.*
+
+**Clase Utileria**
+```java
+public class Utileria {
+  public static String guardarArchivo(MultipartFile multiPart, String ruta) {
+    // Obtenemos el nombre original del archivo
+    String nombreOriginal = multiPart.getOriginalFilename();
+    try {
+      // Formamos el nombre del archivo para guardarlo en el disco duro.
+      File imageFile = new File(ruta + nombreOriginal);
+      System.out.println("Archivo: " + imageFile.getAbsolutePath());
+      // Guardamos fisicamente el archivo en HD
+      multiPart.transferTo(imageFile);
+      return nombreOriginal;
+    } catch (IOException e) {
+      System.out.println("Error " + e.getMessage());
+      return null;
+    }
+  }
+}
+```
